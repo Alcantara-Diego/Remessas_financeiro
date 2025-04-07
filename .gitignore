@@ -1,0 +1,9 @@
+venv
+RelArquivoRemessa.xls
+/dev/src/credentials.json
+/dev/src/Separar_remessas.spec
+/dev/src/token.pickle
+/dev/src/zy_envioEmails.py
+/dev/src/build
+/dev/src/dist
+/dev/src/__pycache__
