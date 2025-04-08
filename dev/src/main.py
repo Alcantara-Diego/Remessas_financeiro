@@ -55,7 +55,7 @@ txt_feeback.pack(pady=20)  # "pack" coloca o widget na tela com um pouco de espa
 
 # Criar botão pedir arquivo
 add_arquivo_btn = tk.Button(root, text="Adicionar arquivo", bg="ivory2", command=lambda: iniciar_script(cor_de_fundo_padrao), font=("Arial", 16),  relief="raised")
-add_arquivo_btn.pack(padx=20, pady=20, expand=True)
+add_arquivo_btn.pack(padx=20, pady=0, expand=True)
 
 # Inicia o tkinter
 root.mainloop()

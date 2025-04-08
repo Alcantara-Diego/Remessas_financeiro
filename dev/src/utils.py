@@ -1,5 +1,6 @@
 import os
 import platform
+import glob
 import base64
 import pickle
 from email.mime.multipart import MIMEMultipart
@@ -58,7 +59,7 @@ def autenticar_gmail():
     return service, email_usuario
 
 
-def criar_mensagem(de, para, assunto, corpo_email, caminho_arquivo):
+def criar_mensagem(de, para, assunto, corpo_email, caminho_arquivos):
     mensagem = MIMEMultipart()
     mensagem['from'] = de
     mensagem['to'] = para
@@ -68,13 +69,15 @@ def criar_mensagem(de, para, assunto, corpo_email, caminho_arquivo):
     mensagem.attach(MIMEText(corpo_email, 'plain'))
     
     # Anexa o arquivo se ele existir
-    if os.path.exists(caminho_arquivo):
-        with open(caminho_arquivo, 'rb') as f:
-            part = MIMEBase('application', 'octet-stream')
-            part.set_payload(f.read())
-            encoders.encode_base64(part)
-            part.add_header('Content-Disposition', 'attachment', filename=os.path.basename(caminho_arquivo))
-            mensagem.attach(part)
+
+    for caminho_arquivo in caminho_arquivos:
+        if os.path.exists(caminho_arquivo):
+            with open(caminho_arquivo, 'rb') as f:
+                part = MIMEBase('application', 'octet-stream')
+                part.set_payload(f.read())
+                encoders.encode_base64(part)
+                part.add_header('Content-Disposition', 'attachment', filename=os.path.basename(caminho_arquivo))
+                mensagem.attach(part)
     else:
         escrever_log(f"Não foi possível encontrar o arquivo em: {caminho_arquivo}", "a")
     
@@ -96,17 +99,24 @@ def enviar_email():
 
     de = "me"
     para = "sistema1@guillaumon.com.br"
-    assunto = "Teste de caso de uso"
-    corpo_email = "Este é o corpo do e-mail."
-    caminho_arquivo = '../../RelArquivoRemessa.xls'
+    assunto = "Teste de envio de email"
+    corpo_email = "Segue planilhas de envio á otus e vanda"
+    pasta_remessas = './RemessasOtusVanda/*'
 
-    mensagem_criada = criar_mensagem(de=de, para=para, assunto=assunto, corpo_email=corpo_email, caminho_arquivo=caminho_arquivo)
+    try:
+        arquivos = [os.path.abspath(f) for f in glob.glob(pasta_remessas) if ("otus" in os.path.basename(f).lower() or "vanda" in os.path.basename(f).lower()) and f.endswith(".xlsx")]
+        print(arquivos)
 
-    if mensagem_criada:
-        envio_realizado = realizar_envio(service=service, mensagem_criada=mensagem_criada)
+        mensagem_criada = criar_mensagem(de=de, para=para, assunto=assunto, corpo_email=corpo_email, caminho_arquivos=arquivos)
 
-    if envio_realizado:
-        escrever_log(f"EMAIL ENVIADO COM SUCESSO\nDE {email_usuario} PARA {para}\nTITULO: {assunto}", "a")
-        escrever_log(f"{envio_realizado}", "a")
+        if mensagem_criada:
+            envio_realizado = realizar_envio(service=service, mensagem_criada=mensagem_criada)
+
+        if envio_realizado:
+            escrever_log(f"EMAIL ENVIADO COM SUCESSO\nDE {email_usuario} PARA {para}\nTITULO: {assunto}", "a")
+            escrever_log(f"{envio_realizado}", "a")
+
+    except:
+        print("Erro no envio de email")
 
 # enviar_email()
