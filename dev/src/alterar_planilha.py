@@ -3,50 +3,9 @@ import os
 from utils import escrever_log
 from controle_pastas import criar_pasta_remessas
 
-def tratarPlanilha(df_pagamentos, df_contas):
-    print("---")
-
-    df_mesclado = mesclarPlanilhas(df_pagamentos, df_contas)
-
-    # Apagar colunas que o setor nn vai precisar
-    df_tratado = df_mesclado.drop(['codigo_logo', 'sistema', 'id_conta_bancaria', 'bloco', 'vencto_ok', 'valor_ok', 'tem_docto', 'link', 'catalogos_id'], axis=1)
-
-    df_formatado = formatar_data(df_tratado)
-
-    return df_formatado
-
-
-def separar_otus_vanda(df_base):
-    print("------")
-
-    print("SEPARANDO ARQUIVOS....")
-    df_otus = df_base[df_base["codigo"] <= 356]
-    df_vanda = df_base[df_base["codigo"] >= 357]
-
-    recebedores = [
-        {"titulo": "Otus", "planilha": df_otus, "n_items": 0, "diretorio": ""},
-        {"titulo": "Vanda", "planilha": df_vanda, "n_items": 0, "diretorio": ""}
-    ]
-
-    caminho_remessas = criar_pasta_remessas()
-
-    for recebedor in recebedores:
-        titulo = recebedor["titulo"]
-        planilha = recebedor["planilha"]
-        
-        novo_arquivo = os.path.join(caminho_remessas, f"{titulo}({len(planilha)})_RelArquivoRemessa.xlsx")
-        recebedor["n_items"] = len(planilha)
-        recebedor["diretorio"] = os.path.abspath(novo_arquivo)
-        
-        planilha.to_excel(novo_arquivo, index=False)
-
-        print(f"ARQUIVO - {titulo} criado com sucesso!")
-        escrever_log(f'Caminho do arquivo criado: {recebedor["diretorio"]}\n', "a")
-
-    return recebedores
 
 def mesclarPlanilhas(df_pagamentos, df_contas):
-    print("mergin....")
+    escrever_log("---JUNTANDO PLANILHAS---", "a")
 
     df_pagamentos.insert(4, 'descricao', "")
   
@@ -55,8 +14,20 @@ def mesclarPlanilhas(df_pagamentos, df_contas):
 
     return df_pagamentos
     
+
+def tratarPlanilha(df):
+    escrever_log("---TRATANDO PLANILHAS---", "a")
+
+    # Apagar colunas que o setor nn vai precisar
+    df_tratado = df.drop(['codigo_logo', 'sistema', 'id_conta_bancaria', 'bloco', 'vencto_ok', 'valor_ok', 'tem_docto', 'link', 'catalogos_id'], axis=1)
+
+    df_formatado = formatar_data(df_tratado)
+
+    return df_formatado
+
+
 def formatar_data(df):
-    print("Formatando data.....")
+    escrever_log("---FORMATANDO DATAS---", "a")
 
      # Verifica se 'vencimento' está no tipo datetime, se não, converte
     if not pd.api.types.is_datetime64_any_dtype(df['vencimento']):
@@ -73,3 +44,39 @@ def formatar_data(df):
     df['data_pagto'] = df['data_pagto'].dt.strftime('%d/%m/%Y')
 
     return df
+
+
+def separar_otus_vanda(df_base):
+    escrever_log("---SEPARANDO ARQUIVOS---", "a")
+
+    df_otus = df_base[df_base["codigo"] <= 356]
+    df_vanda = df_base[df_base["codigo"] >= 357]
+
+    recebedores = [
+        {"titulo": "Otus", "planilha": df_otus, "n_items": 0, "diretorio": ""},
+        {"titulo": "Vanda", "planilha": df_vanda, "n_items": 0, "diretorio": ""}
+    ]
+
+    return recebedores
+
+
+def baixar_planilhas(array_destinatarios):
+    escrever_log("---BAIXANDO ARQUIVOS---", "a")
+    
+    caminho_remessas = criar_pasta_remessas()
+    
+    for destinatario in array_destinatarios:
+        titulo = destinatario["titulo"]
+        planilha = destinatario["planilha"]
+        
+        novo_arquivo = os.path.join(caminho_remessas, f"{titulo}({len(planilha)})_RelArquivoRemessa.xlsx")
+        destinatario["n_items"] = len(planilha)
+        destinatario["diretorio"] = os.path.abspath(novo_arquivo)
+        
+        planilha.to_excel(novo_arquivo, index=False)
+
+        escrever_log(f"ARQUIVO - {titulo} criado com sucesso!\n", "a")
+        escrever_log(f'Caminho do arquivo criado: {destinatario["diretorio"]}\n', "a")
+
+    return array_destinatarios
+
