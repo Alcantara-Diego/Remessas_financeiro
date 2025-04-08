@@ -23,19 +23,27 @@ def separar_otus_vanda(df_base):
     df_otus = df_base[df_base["codigo"] <= 356]
     df_vanda = df_base[df_base["codigo"] >= 357]
 
-    recebedores = {"Otus": df_otus, "Vanda": df_vanda}
+    recebedores = [
+        {"titulo": "Otus", "planilha": df_otus, "n_items": 0, "diretorio": ""},
+        {"titulo": "Vanda", "planilha": df_vanda, "n_items": 0, "diretorio": ""}
+    ]
 
     caminho_remessas = criar_pasta_remessas()
-    
-    for titulo, recebedor in recebedores.items():
-        
-        novo_arquivo = os.path.join(caminho_remessas, f"{titulo}({len(recebedor)})_RelArquivoRemessa.xlsx")
-        caminho_absoluto = os.path.abspath(novo_arquivo)
 
-        recebedor.to_excel(novo_arquivo, index=False)
+    for recebedor in recebedores:
+        titulo = recebedor["titulo"]
+        planilha = recebedor["planilha"]
+        
+        novo_arquivo = os.path.join(caminho_remessas, f"{titulo}({len(planilha)})_RelArquivoRemessa.xlsx")
+        recebedor["n_items"] = len(planilha)
+        recebedor["diretorio"] = os.path.abspath(novo_arquivo)
+        
+        planilha.to_excel(novo_arquivo, index=False)
 
         print(f"ARQUIVO - {titulo} criado com sucesso!")
-        escrever_log(f'Caminho do arquivo criado: {caminho_absoluto}\n', "a")
+        escrever_log(f'Caminho do arquivo criado: {recebedor["diretorio"]}\n', "a")
+
+    return recebedores
 
 def mesclarPlanilhas(df_pagamentos, df_contas):
     print("mergin....")

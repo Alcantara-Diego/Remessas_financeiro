@@ -17,7 +17,6 @@ def selecionar_arquivo():
     return caminho_arquivo
 
 
-
 def pedir_arquivo():
     escrever_log("Iniciando script....", "w")
 
@@ -29,18 +28,17 @@ def pedir_arquivo():
         caminho_arquivo = selecionar_arquivo()
         
         if not caminho_arquivo:
-            print("Nenhum arquivo foi selecionado. O programa será encerrado.")
-            sys.exit(1)
+            print("Nenhum arquivo foi selecionado")
 
     else:
         caminho_arquivo = args.arquivo
 
     if not os.path.exists(caminho_arquivo):
         print(f"Erro: O arquivo {caminho_arquivo} não foi encontrado.")
-        sys.exit(1)
 
     print("Caminho do arquivo: ", caminho_arquivo)
     return caminho_arquivo
+
 
 def criar_pasta_remessas():
 

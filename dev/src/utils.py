@@ -1,4 +1,5 @@
 import os
+import platform
 import base64
 import pickle
 from email.mime.multipart import MIMEMultipart
@@ -17,6 +18,19 @@ def escrever_log(texto, tipo):
     print(texto)
     with open('log.txt', tipo) as f:
         f.write(f"{texto}\n")
+
+
+def abrir_arquivo(diretorio):
+
+    if platform.system() == "Windows":
+        os.startfile(diretorio)
+    elif platform.system() == 'Darwin':  # macOS
+        os.system(f'open {diretorio}')
+    else:                                # Linux
+        os.system(f'xdg-open {diretorio}')
+
+
+
 
 
 def autenticar_gmail():
@@ -95,5 +109,4 @@ def enviar_email():
         escrever_log(f"EMAIL ENVIADO COM SUCESSO\nDE {email_usuario} PARA {para}\nTITULO: {assunto}", "a")
         escrever_log(f"{envio_realizado}", "a")
 
-
-enviar_email()
+# enviar_email()
