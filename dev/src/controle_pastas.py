@@ -1,6 +1,8 @@
 import os
 import sys
 import argparse
+import traceback
+from utils import pegar_data_hoje
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 from utils import escrever_log
@@ -64,6 +66,26 @@ def pegar_pasta_atual():
     return caminho_script
 
     
+def renomear_arquivos(lista_arquivos):
+    data_hoje = pegar_data_hoje()
+
+    for arquivo in lista_arquivos:
+
+        try:
+            novo_nome = arquivo.replace(".xlsx", f"_enviado_{data_hoje}.xlsx")
+
+            #Evitar erro com nomes duplicados
+            contador = 2
+            while os.path.exists(novo_nome):
+                novo_nome = arquivo.replace(".xlsx", f"_enviado_{data_hoje}_v{contador}.xlsx")
+                contador += 1
+
+            os.rename(arquivo, novo_nome)
+            escrever_log(f"Arquivo renomeado: {novo_nome}")
+
+        except Exception as e:
+            detalhes_erro = traceback.format_exc()
+            escrever_log(f"### ERRO AO RENOMEAR ARQUIVO: {detalhes_erro} ###", "a")
 
 
 

@@ -69,9 +69,8 @@ def baixar_planilhas(array_destinatarios):
         planilha = destinatario["planilha"]
         
         diretorio = criar_pasta(titulo)
-        data_hoje = pegar_data_hoje()
 
-        novo_arquivo = os.path.join(diretorio, f"{titulo}({len(planilha)})_{data_hoje}.xlsx")
+        novo_arquivo = os.path.join(diretorio, f"{titulo}({len(planilha)}).xlsx")
         destinatario["n_items"] = len(planilha)
         destinatario["diretorio"] = os.path.abspath(novo_arquivo)
         

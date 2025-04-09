@@ -17,7 +17,7 @@ from google.auth.transport.requests import Request
 # Defina o escopo para enviar e-mails
 SCOPES = ['https://www.googleapis.com/auth/gmail.send','https://www.googleapis.com/auth/gmail.readonly']
 
-def escrever_log(texto, tipo):
+def escrever_log(texto, tipo="a"):
     print(texto)
     with open('log.txt', tipo) as f:
         f.write(f"{texto}\n")
@@ -110,13 +110,12 @@ def enviar_email(destinatario):
     para = "sistema1@guillaumon.com.br"
     assunto = "Teste de envio de email"
     corpo_email = f"Segue remessas {destinatario} para o período atual"
-    data_hoje = pegar_data_hoje()
 
     try:
         pasta_atual = pegar_pasta_atual()
         pasta_remessas = f"{pasta_atual}/{destinatario}/*"
 
-        arquivos = [os.path.abspath(f) for f in glob.glob(pasta_remessas) if (("otus" in os.path.basename(f).lower() or "vanda" in os.path.basename(f).lower()) and data_hoje in os.path.basename(f).lower()) and f.endswith(".xlsx")]
+        arquivos = [os.path.abspath(f) for f in glob.glob(pasta_remessas) if (("otus" in os.path.basename(f).lower() or "vanda" in os.path.basename(f).lower()) and "enviado" not in os.path.basename(f).lower()) and f.endswith(".xlsx")]
         escrever_log(arquivos, "a")
 
         mensagem_criada = criar_mensagem(de=de, para=para, assunto=assunto, corpo_email=corpo_email, caminho_arquivos=arquivos)
@@ -125,6 +124,9 @@ def enviar_email(destinatario):
             envio_realizado = realizar_envio(service=service, mensagem_criada=mensagem_criada)
 
         if envio_realizado:
+            from controle_pastas import renomear_arquivos
+            renomear_arquivos(arquivos) #Marca-los como enviados
+
             escrever_log(f"EMAIL ENVIADO COM SUCESSO\nDE {email_usuario} PARA {para}\nTITULO: {assunto}", "a")
             escrever_log(f"{envio_realizado}", "a")
 
