@@ -3,6 +3,7 @@ import platform
 import glob
 import base64
 import pickle
+import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
@@ -11,6 +12,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from google.auth.transport.requests import Request
+
 
 # Defina o escopo para enviar e-mails
 SCOPES = ['https://www.googleapis.com/auth/gmail.send','https://www.googleapis.com/auth/gmail.readonly']
@@ -31,7 +33,11 @@ def abrir_arquivo(diretorio):
         os.system(f'xdg-open {diretorio}')
 
 
+def pegar_data_hoje():
+    data_atual = datetime.date.today()
+    data_formatada = data_atual.strftime("%d-%m-%Y")
 
+    return data_formatada
 
 
 def autenticar_gmail():
@@ -94,18 +100,24 @@ def realizar_envio(service, mensagem_criada):
         escrever_log(f"Ocorreu um erro inesperado: {e}", "a")
 
 
-def enviar_email():
+def enviar_email(destinatario):
+    from controle_pastas import pegar_pasta_atual #Evitar erro de importação circular
+    escrever_log(f"---ENVIANDO EMAIL {destinatario}---", "a")
+
     service, email_usuario = autenticar_gmail()
 
     de = "me"
     para = "sistema1@guillaumon.com.br"
     assunto = "Teste de envio de email"
-    corpo_email = "Segue planilhas de envio á otus e vanda"
-    pasta_remessas = './RemessasOtusVanda/*'
+    corpo_email = f"Segue remessas {destinatario} para o período atual"
+    data_hoje = pegar_data_hoje()
 
     try:
-        arquivos = [os.path.abspath(f) for f in glob.glob(pasta_remessas) if ("otus" in os.path.basename(f).lower() or "vanda" in os.path.basename(f).lower()) and f.endswith(".xlsx")]
-        print(arquivos)
+        pasta_atual = pegar_pasta_atual()
+        pasta_remessas = f"{pasta_atual}/{destinatario}/*"
+
+        arquivos = [os.path.abspath(f) for f in glob.glob(pasta_remessas) if (("otus" in os.path.basename(f).lower() or "vanda" in os.path.basename(f).lower()) and data_hoje in os.path.basename(f).lower()) and f.endswith(".xlsx")]
+        escrever_log(arquivos, "a")
 
         mensagem_criada = criar_mensagem(de=de, para=para, assunto=assunto, corpo_email=corpo_email, caminho_arquivos=arquivos)
 
@@ -116,7 +128,6 @@ def enviar_email():
             escrever_log(f"EMAIL ENVIADO COM SUCESSO\nDE {email_usuario} PARA {para}\nTITULO: {assunto}", "a")
             escrever_log(f"{envio_realizado}", "a")
 
-    except:
-        print("Erro no envio de email")
-
-# enviar_email()
+    except Exception as e:
+        escrever_log(f"Erro no envio do email: {e}", "a")
+        raise e

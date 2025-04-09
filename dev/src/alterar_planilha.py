@@ -1,7 +1,8 @@
 import pandas as pd
 import os
-from utils import escrever_log
-from controle_pastas import criar_pasta_remessas
+import datetime
+from utils import escrever_log, pegar_data_hoje
+from controle_pastas import criar_pasta
 
 
 def mesclarPlanilhas(df_pagamentos, df_contas):
@@ -52,24 +53,25 @@ def separar_otus_vanda(df_base):
     df_otus = df_base[df_base["codigo"] <= 356]
     df_vanda = df_base[df_base["codigo"] >= 357]
 
-    recebedores = [
+    array_destinatarios = [
         {"titulo": "Otus", "planilha": df_otus, "n_items": 0, "diretorio": ""},
         {"titulo": "Vanda", "planilha": df_vanda, "n_items": 0, "diretorio": ""}
     ]
 
-    return recebedores
+    return array_destinatarios
 
 
 def baixar_planilhas(array_destinatarios):
-    escrever_log("---BAIXANDO ARQUIVOS---", "a")
-    
-    caminho_remessas = criar_pasta_remessas()
+    escrever_log("---BAIXANDO ARQUIVOS---", "a")    
     
     for destinatario in array_destinatarios:
         titulo = destinatario["titulo"]
         planilha = destinatario["planilha"]
         
-        novo_arquivo = os.path.join(caminho_remessas, f"{titulo}({len(planilha)})_RelArquivoRemessa.xlsx")
+        diretorio = criar_pasta(titulo)
+        data_hoje = pegar_data_hoje()
+
+        novo_arquivo = os.path.join(diretorio, f"{titulo}({len(planilha)})_{data_hoje}.xlsx")
         destinatario["n_items"] = len(planilha)
         destinatario["diretorio"] = os.path.abspath(novo_arquivo)
         

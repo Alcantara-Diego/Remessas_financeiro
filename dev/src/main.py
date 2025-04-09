@@ -1,9 +1,9 @@
 import pandas as pd
 import tkinter as tk
-from func_tkinter import exibir_feedback_usuario, exibir_tela_inicial, encerrar_script
+from func_tkinter import exibir_feedback_planilha, exibir_tela_inicial, encerrar_script
 from alterar_planilha import mesclarPlanilhas, tratarPlanilha, separar_otus_vanda, baixar_planilhas
 from controle_pastas import pedir_arquivo
-from utils import escrever_log, enviar_email
+from utils import escrever_log
 
 
 def tkinter_config():
@@ -39,10 +39,10 @@ def iniciar_script(cor_de_fundo_padrao):
 
         planilhas_baixadas = baixar_planilhas(planilhas_separadas)
 
-        exibir_feedback_usuario(root=root, planilhas=planilhas_baixadas, sucesso=True, txt_feeback=txt_feeback, add_arquivo_btn=add_arquivo_btn)
+        exibir_feedback_planilha(root=root, planilhas=planilhas_baixadas, sucesso=True, txt_feeback=txt_feeback, add_arquivo_btn=add_arquivo_btn)
         
     except Exception as e:
-        exibir_feedback_usuario(root=root, sucesso=False, txt_feeback=txt_feeback, add_arquivo_btn=add_arquivo_btn)
+        exibir_feedback_planilha(root=root, sucesso=False, txt_feeback=txt_feeback, add_arquivo_btn=add_arquivo_btn)
         escrever_log("##########------------ERROR------------############", "a")
         escrever_log(e, "a")
     
