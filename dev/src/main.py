@@ -10,7 +10,6 @@ def tkinter_config():
     root = tk.Tk()
     root.title("Separar Remessas")
     root.geometry("600x400")
-    root.iconbitmap("pato.ico")
     cor_de_fundo_padrao = "skyblue4"
     root.config(bg=cor_de_fundo_padrao)
     root.protocol("WM_DELETE_WINDOW", lambda: encerrar_script(root))

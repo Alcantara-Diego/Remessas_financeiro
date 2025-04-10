@@ -1,7 +1,8 @@
+import sys
 import tkinter as tk
 from tkinter import messagebox
-import sys
-from utils import abrir_arquivo, enviar_email
+from utils import abrir_arquivo
+from enviar_email import enviar_email
 
 def exibir_tela_inicial(root, txt_feeback, cor_de_fundo_padrao):
     root.config(bg=cor_de_fundo_padrao,)
